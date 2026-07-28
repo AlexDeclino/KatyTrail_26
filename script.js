@@ -99,3 +99,214 @@ POIS.forEach((poi) => {
   btn.addEventListener("click", () => openOverlay(poi));
   markersEl.appendChild(btn);
 });
+
+// --- Pan & zoom ---
+(() => {
+  const stage = document.getElementById("map-stage");
+  const wrap = document.getElementById("map-wrap");
+  const zoomInBtn = document.getElementById("zoom-in");
+  const zoomOutBtn = document.getElementById("zoom-out");
+  const zoomResetBtn = document.getElementById("zoom-reset");
+
+  const MIN_SCALE = 1;
+  const MAX_SCALE = 5;
+  const BUTTON_FACTOR = 1.6;
+  const WHEEL_FACTOR = 1.15;
+
+  let scale = 1;
+  let panX = 0;
+  let panY = 0;
+
+  function clamp(v, min, max) {
+    return Math.min(max, Math.max(min, v));
+  }
+
+  function clampPan() {
+    const stageRect = stage.getBoundingClientRect();
+    const w = wrap.offsetWidth * scale;
+    const h = wrap.offsetHeight * scale;
+
+    if (w <= stageRect.width) {
+      panX = 0;
+    } else {
+      const limit = (w - stageRect.width) / 2;
+      panX = clamp(panX, -limit, limit);
+    }
+
+    if (h <= stageRect.height) {
+      panY = 0;
+    } else {
+      const limit = (h - stageRect.height) / 2;
+      panY = clamp(panY, -limit, limit);
+    }
+  }
+
+  function apply() {
+    wrap.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+  }
+
+  // Keep a point under (clientX, clientY) visually fixed while changing scale.
+  function zoomTo(newScale, clientX, clientY) {
+    newScale = clamp(newScale, MIN_SCALE, MAX_SCALE);
+    const stageRect = stage.getBoundingClientRect();
+    const stageCenterX = stageRect.left + stageRect.width / 2;
+    const stageCenterY = stageRect.top + stageRect.height / 2;
+
+    const qx = clientX - stageCenterX;
+    const qy = clientY - stageCenterY;
+    const ratio = newScale / scale;
+
+    panX = qx - (qx - panX) * ratio;
+    panY = qy - (qy - panY) * ratio;
+    scale = newScale;
+
+    clampPan();
+    apply();
+  }
+
+  function stageCenterPoint() {
+    const r = stage.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  }
+
+  zoomInBtn.addEventListener("click", () => {
+    const c = stageCenterPoint();
+    wrap.classList.remove("is-interacting");
+    zoomTo(scale * BUTTON_FACTOR, c.x, c.y);
+  });
+
+  zoomOutBtn.addEventListener("click", () => {
+    const c = stageCenterPoint();
+    wrap.classList.remove("is-interacting");
+    zoomTo(scale / BUTTON_FACTOR, c.x, c.y);
+  });
+
+  zoomResetBtn.addEventListener("click", () => {
+    wrap.classList.remove("is-interacting");
+    scale = 1;
+    panX = 0;
+    panY = 0;
+    apply();
+  });
+
+  stage.addEventListener(
+    "wheel",
+    (e) => {
+      e.preventDefault();
+      wrap.classList.add("is-interacting");
+      const factor = e.deltaY < 0 ? WHEEL_FACTOR : 1 / WHEEL_FACTOR;
+      zoomTo(scale * factor, e.clientX, e.clientY);
+    },
+    { passive: false }
+  );
+
+  // Unified pointer-based drag-to-pan and pinch-to-zoom.
+  const pointers = new Map();
+  let dragMoved = false;
+  let dragStart = null; // { x, y, panX, panY }
+  let pinchStart = null; // { dist, midX, midY, scale, panX, panY }
+
+  function distance(a, b) {
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+
+  function midpoint(a, b) {
+    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  }
+
+  function suppressNextClick() {
+    const onClick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    document.addEventListener("click", onClick, { capture: true, once: true });
+  }
+
+  stage.addEventListener("pointerdown", (e) => {
+    if (e.target.closest(".zoom-btn")) return;
+
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    wrap.classList.add("is-interacting");
+
+    if (pointers.size === 1) {
+      dragMoved = false;
+      dragStart = { x: e.clientX, y: e.clientY, panX, panY };
+      wrap.classList.add("is-panning");
+    } else if (pointers.size === 2) {
+      const [a, b] = [...pointers.values()];
+      pinchStart = {
+        dist: distance(a, b),
+        mid: midpoint(a, b),
+        scale,
+        panX,
+        panY
+      };
+      dragStart = null;
+    }
+  });
+
+  stage.addEventListener("pointermove", (e) => {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointers.size === 2 && pinchStart) {
+      const [a, b] = [...pointers.values()];
+      const newDist = distance(a, b);
+      const mid = midpoint(a, b);
+      const newScale = clamp(
+        pinchStart.scale * (newDist / pinchStart.dist),
+        MIN_SCALE,
+        MAX_SCALE
+      );
+
+      const stageRect = stage.getBoundingClientRect();
+      const stageCenterX = stageRect.left + stageRect.width / 2;
+      const stageCenterY = stageRect.top + stageRect.height / 2;
+      const qx = mid.x - stageCenterX;
+      const qy = mid.y - stageCenterY;
+      const ratio = newScale / pinchStart.scale;
+
+      panX = qx - (qx - pinchStart.panX) * ratio;
+      panY = qy - (qy - pinchStart.panY) * ratio;
+      scale = newScale;
+
+      clampPan();
+      apply();
+      dragMoved = true;
+    } else if (pointers.size === 1 && dragStart) {
+      const dx = e.clientX - dragStart.x;
+      const dy = e.clientY - dragStart.y;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) dragMoved = true;
+
+      panX = dragStart.panX + dx;
+      panY = dragStart.panY + dy;
+      clampPan();
+      apply();
+    }
+  });
+
+  function endPointer(e) {
+    pointers.delete(e.pointerId);
+    wrap.classList.remove("is-panning");
+
+    if (pointers.size < 2) pinchStart = null;
+
+    if (pointers.size === 1) {
+      const [p] = [...pointers.values()];
+      dragStart = { x: p.x, y: p.y, panX, panY };
+    } else if (pointers.size === 0) {
+      dragStart = null;
+      wrap.classList.remove("is-interacting");
+      if (dragMoved) suppressNextClick();
+      dragMoved = false;
+    }
+  }
+
+  stage.addEventListener("pointerup", endPointer);
+  stage.addEventListener("pointercancel", endPointer);
+
+  window.addEventListener("resize", () => {
+    clampPan();
+    apply();
+  });
+})();
