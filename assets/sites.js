@@ -1,4 +1,7 @@
-{
+// Content for each numbered site on the map.
+// Edit the "description" text and the "images" list for any site below —
+// image files must live in this same "assets" folder.
+const SITE_CONTENT = {
   "sites": [
     {
       "site": 1,
@@ -66,4 +69,4 @@
       "images": ["13.png"]
     }
   ]
-}
+};

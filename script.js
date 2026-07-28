@@ -1,22 +1,11 @@
 // POI coordinates are percentages of the map image's width/height,
 // measured from the green markers in the reference map (map_POI_B.png).
-// Descriptions and images for each site live in assets/sites.json so the
-// client can edit that content without touching this file.
-const SITE_CONTENT_URL = "assets/sites.json";
-
-const siteContentReady = fetch(SITE_CONTENT_URL)
-  .then((res) => res.json())
-  .then((data) => {
-    const map = {};
-    (data.sites || []).forEach((s) => {
-      map[s.site] = s;
-    });
-    return map;
-  })
-  .catch((err) => {
-    console.error("Could not load " + SITE_CONTENT_URL, err);
-    return {};
-  });
+// Descriptions and images for each site live in assets/sites.js (loaded
+// before this file) so the client can edit that content on its own.
+const siteContentMap = {};
+(SITE_CONTENT.sites || []).forEach((s) => {
+  siteContentMap[s.site] = s;
+});
 
 // Ordered south to north (bottom to top of the map) so marker numbers run bottom-up.
 const RAW_POIS = [
@@ -43,25 +32,17 @@ const overlayCard = overlay.querySelector(".overlay-card");
 const overlayTitle = document.getElementById("overlay-title");
 const overlayText = document.getElementById("overlay-text");
 const overlayGallery = document.getElementById("overlay-gallery");
-const overlayClose = document.getElementById("overlay-close");
+const returnHome = document.getElementById("return-home");
 
 let lastFocused = null;
 const defaultTitle = document.title;
 
-async function openOverlay(poi) {
+function openOverlay(poi) {
   overlayTitle.textContent = "SITE #" + poi.number;
-  overlayText.textContent = "";
   overlayGallery.innerHTML = "";
   document.title = "SITE #" + poi.number;
 
-  lastFocused = document.activeElement;
-  overlay.hidden = false;
-  overlayClose.focus();
-
-  const siteMap = await siteContentReady;
-  if (overlay.hidden) return; // closed before content finished loading
-
-  const content = siteMap[poi.number] || {};
+  const content = siteContentMap[poi.number] || {};
   overlayText.textContent = content.description || "";
   (content.images || []).forEach((filename) => {
     const img = document.createElement("img");
@@ -69,6 +50,11 @@ async function openOverlay(poi) {
     img.alt = poi.label + " photo";
     overlayGallery.appendChild(img);
   });
+
+  lastFocused = document.activeElement;
+  overlay.hidden = false;
+  overlay.scrollTop = 0;
+  returnHome.focus();
 }
 
 function closeOverlay() {
@@ -77,7 +63,7 @@ function closeOverlay() {
   if (lastFocused) lastFocused.focus();
 }
 
-overlayClose.addEventListener("click", closeOverlay);
+returnHome.addEventListener("click", closeOverlay);
 
 overlay.addEventListener("click", (e) => {
   if (e.target === overlay) closeOverlay();
