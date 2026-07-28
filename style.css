@@ -71,15 +71,15 @@ body {
 .marker {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 26px;
-  height: 26px;
+  width: 13px;
+  height: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 3px;
   background: var(--accent);
-  border: 3px solid #ffffff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
   cursor: pointer;
   padding: 0;
   transition: transform 0.15s ease, background 0.15s ease;
@@ -87,7 +87,7 @@ body {
 
 .marker-number {
   color: #fff;
-  font-size: 0.75rem;
+  font-size: 0.4rem;
   font-weight: 700;
   line-height: 1;
   pointer-events: none;
@@ -209,6 +209,6 @@ body {
 }
 
 @media (max-width: 480px) {
-  .marker { width: 20px; height: 20px; border-width: 2px; border-radius: 5px; }
-  .marker-number { font-size: 0.65rem; }
+  .marker { width: 10px; height: 10px; border-width: 1px; border-radius: 2px; }
+  .marker-number { font-size: 0.32rem; }
 }
