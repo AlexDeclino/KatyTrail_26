@@ -39,6 +39,7 @@ const POIS = [
   },
   {
     id: "victory-overlook",
+    number: 5,
     label: "Victory Overlook",
     x: 30.38,
     y: 69.68,
@@ -93,8 +94,13 @@ POIS.forEach((poi) => {
   btn.className = "marker";
   btn.style.left = poi.x + "%";
   btn.style.top = poi.y + "%";
-  btn.setAttribute("aria-label", poi.label);
+  btn.setAttribute("aria-label", poi.number + ". " + poi.label);
   btn.setAttribute("type", "button");
+
+  const number = document.createElement("span");
+  number.className = "marker-number";
+  number.textContent = poi.number;
+  btn.appendChild(number);
 
   const label = document.createElement("span");
   label.className = "marker-label";
