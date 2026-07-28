@@ -9,27 +9,36 @@ const PLACEHOLDER_TEXTS = [
 ];
 
 // Ordered south to north (bottom to top of the map) so marker numbers run bottom-up.
+// Image files simply follow the marker number: POI 1 -> 1.png, POI 2 -> 2.png, etc.
 const RAW_POIS = [
-  { id: "victory-overlook",    label: "Victory Overlook",                    x: 30.35, y: 72.17, images: ["assets/13.png"] },
-  { id: "thomsen-overlook-3",  label: "Trail Point (near Thomsen Overlook)", x: 31.46, y: 70.09, images: ["assets/12.png"] },
-  { id: "thomsen-overlook-2",  label: "Trail Point (near Thomsen Overlook)", x: 30.10, y: 70.09, images: ["assets/11.png"] },
-  { id: "thomsen-overlook",    label: "Thomsen Overlook",                    x: 31.74, y: 68.56, images: ["assets/10.png"] },
-  { id: "ice-house-caboose",   label: "Katy Trail Ice House Caboose",        x: 37.51, y: 65.10, images: ["assets/9.png"] },
-  { id: "snyders-union",       label: "Snyder's Union",                      x: 50.00, y: 54.31, images: ["assets/8.png"] },
-  { id: "travis-st",           label: "Trail Point (Travis St.)",            x: 61.35, y: 35.48, images: ["assets/7.png"] },
-  { id: "tao-of-warren-2",     label: "Trail Point (near The Tao of Warren)",x: 64.33, y: 30.66, images: ["assets/6_A.png", "assets/6_B.png", "assets/6_C.png"] },
-  { id: "tao-of-warren",       label: "The Tao of Warren",                   x: 65.15, y: 29.70, images: ["assets/5.png"] },
-  { id: "davids-way",          label: "David's Way",                         x: 66.73, y: 28.00, images: ["assets/4.png"] },
-  { id: "knox-street",         label: "Knox Street",                         x: 67.53, y: 26.79, images: ["assets/3.png"] },
-  { id: "harvard",             label: "Harvard",                             x: 74.72, y: 21.06, images: ["assets/2.png"] },
-  { id: "dedos-place",        label: "Dedo's Place",                        x: 79.81, y: 16.82, images: ["assets/1.png"] }
+  { id: "victory-overlook",    label: "Victory Overlook",                    x: 30.35, y: 72.17 },
+  { id: "thomsen-overlook-3",  label: "Trail Point (near Thomsen Overlook)", x: 31.46, y: 70.09 },
+  { id: "thomsen-overlook-2",  label: "Trail Point (near Thomsen Overlook)", x: 30.10, y: 70.09 },
+  { id: "thomsen-overlook",    label: "Thomsen Overlook",                    x: 31.74, y: 68.56 },
+  { id: "ice-house-caboose",   label: "Katy Trail Ice House Caboose",        x: 37.51, y: 65.10 },
+  { id: "snyders-union",       label: "Snyder's Union",                      x: 50.00, y: 54.31 },
+  { id: "travis-st",           label: "Trail Point (Travis St.)",            x: 61.35, y: 35.48 },
+  { id: "tao-of-warren-2",     label: "Trail Point (near The Tao of Warren)",x: 64.33, y: 30.66 },
+  { id: "tao-of-warren",       label: "The Tao of Warren",                   x: 65.15, y: 29.70 },
+  { id: "davids-way",          label: "David's Way",                         x: 66.73, y: 28.00 },
+  { id: "knox-street",         label: "Knox Street",                         x: 67.53, y: 26.79 },
+  { id: "harvard",             label: "Harvard",                             x: 74.72, y: 21.06 },
+  { id: "dedos-place",        label: "Dedo's Place",                        x: 79.81, y: 16.82 }
 ];
 
-const POIS = RAW_POIS.map((poi, i) => ({
-  ...poi,
-  number: i + 1,
-  text: PLACEHOLDER_TEXTS[i % PLACEHOLDER_TEXTS.length]
-}));
+const POIS = RAW_POIS.map((poi, i) => {
+  const number = i + 1;
+  const images =
+    number === 6
+      ? ["assets/6_A.png", "assets/6_B.png", "assets/6_C.png"]
+      : ["assets/" + number + ".png"];
+  return {
+    ...poi,
+    number,
+    images,
+    text: PLACEHOLDER_TEXTS[i % PLACEHOLDER_TEXTS.length]
+  };
+});
 
 const markersEl = document.getElementById("markers");
 const overlay = document.getElementById("overlay");
@@ -43,7 +52,7 @@ let lastFocused = null;
 const defaultTitle = document.title;
 
 function openOverlay(poi) {
-  overlayTitle.textContent = poi.label;
+  overlayTitle.textContent = "SITE #" + poi.number;
   overlayText.textContent = poi.text;
   overlayGallery.innerHTML = "";
   poi.images.forEach((src) => {
@@ -53,7 +62,7 @@ function openOverlay(poi) {
     overlayGallery.appendChild(img);
   });
 
-  document.title = "#" + poi.number + " " + poi.label;
+  document.title = "SITE #" + poi.number;
 
   lastFocused = document.activeElement;
   overlay.hidden = false;
@@ -89,15 +98,12 @@ const markerEls = POIS.map((poi) => {
   number.textContent = poi.number;
   btn.appendChild(number);
 
-  const label = document.createElement("span");
-  label.className = "marker-label";
-  label.textContent = poi.label;
-  btn.appendChild(label);
-
   btn.addEventListener("click", () => openOverlay(poi));
   markersEl.appendChild(btn);
   return btn;
 });
+
+const scatterLinesEl = document.getElementById("scatter-lines");
 
 // Spread out markers that sit close enough to overlap, so each stays clickable.
 function layoutMarkers() {
@@ -147,7 +153,7 @@ function layoutMarkers() {
     if (idxs.length < 2) return;
     idxs.sort((a, b) => nodes[a].x - nodes[b].x);
     const centerX = idxs.reduce((sum, i) => sum + nodes[i].x, 0) / idxs.length;
-    const spacing = size + 4;
+    const spacing = size * 3;
     const startX = centerX - (spacing * (idxs.length - 1)) / 2;
     idxs.forEach((i, k) => {
       offsets[i] = startX + k * spacing - nodes[i].x;
@@ -156,6 +162,26 @@ function layoutMarkers() {
 
   markerEls.forEach((el, i) => {
     el.style.setProperty("--scatter-x", offsets[i].toFixed(1) + "px");
+  });
+
+  // Leader line from each scattered marker back to its true position on the map.
+  scatterLinesEl.innerHTML = "";
+  nodes.forEach((n, i) => {
+    const off = offsets[i];
+    if (Math.abs(off) < 0.5) return;
+
+    const line = document.createElement("div");
+    line.className = "scatter-line";
+    line.style.left = Math.min(n.x, n.x + off) + "px";
+    line.style.top = n.y + "px";
+    line.style.width = Math.abs(off) + "px";
+    scatterLinesEl.appendChild(line);
+
+    const anchor = document.createElement("div");
+    anchor.className = "scatter-anchor";
+    anchor.style.left = n.x + "px";
+    anchor.style.top = n.y + "px";
+    scatterLinesEl.appendChild(anchor);
   });
 }
 
