@@ -3,6 +3,10 @@
   --accent-dark: #c94a2d;
   --ink: #263b2f;
   --paper: #faf7f0;
+  --marker-bg: #ffd400;
+  --marker-bg-hover: #ffc300;
+  --marker-border: #1d4ed8;
+  --marker-number: #000000;
 }
 
 * { box-sizing: border-box; }
@@ -84,15 +88,15 @@ body {
 
 .marker {
   position: absolute;
-  transform: translate(-50%, -50%);
-  width: 13px;
-  height: 13px;
+  transform: translate(calc(-50% + var(--scatter-x, 0px)), -50%);
+  width: 26px;
+  height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 3px;
-  background: var(--accent);
-  border: 1.5px solid #ffffff;
+  border-radius: 6px;
+  background: var(--marker-bg);
+  border: 3px solid var(--marker-border);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
   cursor: pointer;
   padding: 0;
@@ -100,8 +104,8 @@ body {
 }
 
 .marker-number {
-  color: #fff;
-  font-size: 0.4rem;
+  color: var(--marker-number);
+  font-size: 0.75rem;
   font-weight: 700;
   line-height: 1;
   pointer-events: none;
@@ -110,9 +114,9 @@ body {
 .marker::after {
   content: "";
   position: absolute;
-  inset: -4px;
+  inset: -8px;
   border-radius: inherit;
-  background: var(--accent);
+  background: var(--marker-bg);
   opacity: 0.35;
   animation: pulse 2s ease-out infinite;
   z-index: -1;
@@ -120,8 +124,8 @@ body {
 
 .marker:hover,
 .marker:focus-visible {
-  background: var(--accent-dark);
-  transform: translate(-50%, -50%) scale(1.25);
+  background: var(--marker-bg-hover);
+  transform: translate(calc(-50% + var(--scatter-x, 0px)), -50%) scale(1.25);
   outline: none;
 }
 
@@ -210,15 +214,16 @@ body {
 
 .overlay-gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 0.6rem;
   margin-top: 1rem;
 }
 
 .overlay-gallery img {
   width: 100%;
-  height: 90px;
-  object-fit: cover;
+  height: auto;
+  display: block;
+  object-fit: contain;
   border-radius: 6px;
 }
 
@@ -271,6 +276,6 @@ body {
 }
 
 @media (max-width: 480px) {
-  .marker { width: 10px; height: 10px; border-width: 1px; border-radius: 2px; }
-  .marker-number { font-size: 0.32rem; }
+  .marker { width: 20px; height: 20px; border-width: 2px; border-radius: 5px; }
+  .marker-number { font-size: 0.65rem; }
 }

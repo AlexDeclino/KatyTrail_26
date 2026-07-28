@@ -8,33 +8,26 @@ const PLACEHOLDER_TEXTS = [
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum."
 ];
 
-const PLACEHOLDER_IMAGE_SETS = [
-  ["assets/placeholder-1.svg", "assets/placeholder-2.svg", "assets/placeholder-3.svg"],
-  ["assets/placeholder-2.svg", "assets/placeholder-3.svg", "assets/placeholder-1.svg"],
-  ["assets/placeholder-3.svg", "assets/placeholder-1.svg", "assets/placeholder-2.svg"]
-];
-
 const RAW_POIS = [
-  { id: "dedos-place",        label: "Dedo's Place",                        x: 79.81, y: 16.82 },
-  { id: "harvard",             label: "Harvard",                             x: 74.72, y: 21.06 },
-  { id: "knox-street",         label: "Knox Street",                         x: 67.53, y: 26.79 },
-  { id: "davids-way",          label: "David's Way",                         x: 66.73, y: 28.00 },
-  { id: "tao-of-warren",       label: "The Tao of Warren",                   x: 65.15, y: 29.70 },
-  { id: "tao-of-warren-2",     label: "Trail Point (near The Tao of Warren)",x: 64.33, y: 30.66 },
-  { id: "travis-st",           label: "Trail Point (Travis St.)",            x: 61.35, y: 35.48 },
-  { id: "snyders-union",       label: "Snyder's Union",                      x: 50.00, y: 54.31 },
-  { id: "ice-house-caboose",   label: "Katy Trail Ice House Caboose",        x: 37.51, y: 65.10 },
-  { id: "thomsen-overlook",    label: "Thomsen Overlook",                    x: 31.74, y: 68.56 },
-  { id: "thomsen-overlook-2",  label: "Trail Point (near Thomsen Overlook)", x: 30.10, y: 70.09 },
-  { id: "thomsen-overlook-3",  label: "Trail Point (near Thomsen Overlook)", x: 31.46, y: 70.09 },
-  { id: "victory-overlook",    label: "Victory Overlook",                    x: 30.35, y: 72.17 }
+  { id: "dedos-place",        label: "Dedo's Place",                        x: 79.81, y: 16.82, images: ["assets/1.png"] },
+  { id: "harvard",             label: "Harvard",                             x: 74.72, y: 21.06, images: ["assets/2.png"] },
+  { id: "knox-street",         label: "Knox Street",                         x: 67.53, y: 26.79, images: ["assets/3.png"] },
+  { id: "davids-way",          label: "David's Way",                         x: 66.73, y: 28.00, images: ["assets/4.png"] },
+  { id: "tao-of-warren",       label: "The Tao of Warren",                   x: 65.15, y: 29.70, images: ["assets/5.png"] },
+  { id: "tao-of-warren-2",     label: "Trail Point (near The Tao of Warren)",x: 64.33, y: 30.66, images: ["assets/6_A.png", "assets/6_B.png", "assets/6_C.png"] },
+  { id: "travis-st",           label: "Trail Point (Travis St.)",            x: 61.35, y: 35.48, images: ["assets/7.png"] },
+  { id: "snyders-union",       label: "Snyder's Union",                      x: 50.00, y: 54.31, images: ["assets/8.png"] },
+  { id: "ice-house-caboose",   label: "Katy Trail Ice House Caboose",        x: 37.51, y: 65.10, images: ["assets/9.png"] },
+  { id: "thomsen-overlook",    label: "Thomsen Overlook",                    x: 31.74, y: 68.56, images: ["assets/10.png"] },
+  { id: "thomsen-overlook-2",  label: "Trail Point (near Thomsen Overlook)", x: 30.10, y: 70.09, images: ["assets/11.png"] },
+  { id: "thomsen-overlook-3",  label: "Trail Point (near Thomsen Overlook)", x: 31.46, y: 70.09, images: ["assets/12.png"] },
+  { id: "victory-overlook",    label: "Victory Overlook",                    x: 30.35, y: 72.17, images: ["assets/13.png"] }
 ];
 
 const POIS = RAW_POIS.map((poi, i) => ({
   ...poi,
   number: i + 1,
-  text: PLACEHOLDER_TEXTS[i % PLACEHOLDER_TEXTS.length],
-  images: PLACEHOLDER_IMAGE_SETS[i % PLACEHOLDER_IMAGE_SETS.length]
+  text: PLACEHOLDER_TEXTS[i % PLACEHOLDER_TEXTS.length]
 }));
 
 const markersEl = document.getElementById("markers");
@@ -46,6 +39,7 @@ const overlayGallery = document.getElementById("overlay-gallery");
 const overlayClose = document.getElementById("overlay-close");
 
 let lastFocused = null;
+const defaultTitle = document.title;
 
 function openOverlay(poi) {
   overlayTitle.textContent = poi.label;
@@ -58,6 +52,8 @@ function openOverlay(poi) {
     overlayGallery.appendChild(img);
   });
 
+  document.title = "#" + poi.number + " " + poi.label;
+
   lastFocused = document.activeElement;
   overlay.hidden = false;
   overlayClose.focus();
@@ -65,6 +61,7 @@ function openOverlay(poi) {
 
 function closeOverlay() {
   overlay.hidden = true;
+  document.title = defaultTitle;
   if (lastFocused) lastFocused.focus();
 }
 
@@ -78,7 +75,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && !overlay.hidden) closeOverlay();
 });
 
-POIS.forEach((poi) => {
+const markerEls = POIS.map((poi) => {
   const btn = document.createElement("button");
   btn.className = "marker";
   btn.style.left = poi.x + "%";
@@ -98,7 +95,71 @@ POIS.forEach((poi) => {
 
   btn.addEventListener("click", () => openOverlay(poi));
   markersEl.appendChild(btn);
+  return btn;
 });
+
+// Spread out markers that sit close enough to overlap, so each stays clickable.
+function layoutMarkers() {
+  const wrap = document.getElementById("map-wrap");
+  const w = wrap.offsetWidth;
+  const h = wrap.offsetHeight;
+  if (!w || !h) return;
+
+  const size = markerEls[0] ? markerEls[0].offsetWidth : 26;
+
+  const nodes = POIS.map((poi) => ({
+    x: (poi.x / 100) * w,
+    y: (poi.y / 100) * h
+  }));
+
+  const parent = nodes.map((_, i) => i);
+  function find(i) {
+    while (parent[i] !== i) {
+      parent[i] = parent[parent[i]];
+      i = parent[i];
+    }
+    return i;
+  }
+  function union(a, b) {
+    const ra = find(a);
+    const rb = find(b);
+    if (ra !== rb) parent[ra] = rb;
+  }
+
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      if (Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y) < size) {
+        union(i, j);
+      }
+    }
+  }
+
+  const clusters = new Map();
+  nodes.forEach((_, i) => {
+    const root = find(i);
+    if (!clusters.has(root)) clusters.set(root, []);
+    clusters.get(root).push(i);
+  });
+
+  const offsets = new Array(nodes.length).fill(0);
+  clusters.forEach((idxs) => {
+    if (idxs.length < 2) return;
+    idxs.sort((a, b) => nodes[a].x - nodes[b].x);
+    const centerX = idxs.reduce((sum, i) => sum + nodes[i].x, 0) / idxs.length;
+    const spacing = size + 4;
+    const startX = centerX - (spacing * (idxs.length - 1)) / 2;
+    idxs.forEach((i, k) => {
+      offsets[i] = startX + k * spacing - nodes[i].x;
+    });
+  });
+
+  markerEls.forEach((el, i) => {
+    el.style.setProperty("--scatter-x", offsets[i].toFixed(1) + "px");
+  });
+}
+
+layoutMarkers();
+window.addEventListener("resize", layoutMarkers);
 
 // --- Pan & zoom ---
 (() => {
