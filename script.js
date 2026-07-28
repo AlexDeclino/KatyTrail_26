@@ -1,15 +1,24 @@
 // POI coordinates are percentages of the map image's width/height,
 // measured from the green markers in the reference map (map_POI_B.png).
-const PLACEHOLDER_TEXTS = [
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.",
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum."
-];
+// Descriptions and images for each site live in assets/sites.json so the
+// client can edit that content without touching this file.
+const SITE_CONTENT_URL = "assets/sites.json";
+
+const siteContentReady = fetch(SITE_CONTENT_URL)
+  .then((res) => res.json())
+  .then((data) => {
+    const map = {};
+    (data.sites || []).forEach((s) => {
+      map[s.site] = s;
+    });
+    return map;
+  })
+  .catch((err) => {
+    console.error("Could not load " + SITE_CONTENT_URL, err);
+    return {};
+  });
 
 // Ordered south to north (bottom to top of the map) so marker numbers run bottom-up.
-// Image files simply follow the marker number: POI 1 -> 1.png, POI 2 -> 2.png, etc.
 const RAW_POIS = [
   { id: "victory-overlook",    label: "Victory Overlook",                    x: 30.35, y: 72.17 },
   { id: "thomsen-overlook-3",  label: "Trail Point (near Thomsen Overlook)", x: 31.46, y: 70.09 },
@@ -26,19 +35,7 @@ const RAW_POIS = [
   { id: "dedos-place",        label: "Dedo's Place",                        x: 79.81, y: 16.82 }
 ];
 
-const POIS = RAW_POIS.map((poi, i) => {
-  const number = i + 1;
-  const images =
-    number === 6
-      ? ["assets/6_A.png", "assets/6_B.png", "assets/6_C.png"]
-      : ["assets/" + number + ".png"];
-  return {
-    ...poi,
-    number,
-    images,
-    text: PLACEHOLDER_TEXTS[i % PLACEHOLDER_TEXTS.length]
-  };
-});
+const POIS = RAW_POIS.map((poi, i) => ({ ...poi, number: i + 1 }));
 
 const markersEl = document.getElementById("markers");
 const overlay = document.getElementById("overlay");
@@ -51,22 +48,27 @@ const overlayClose = document.getElementById("overlay-close");
 let lastFocused = null;
 const defaultTitle = document.title;
 
-function openOverlay(poi) {
+async function openOverlay(poi) {
   overlayTitle.textContent = "SITE #" + poi.number;
-  overlayText.textContent = poi.text;
+  overlayText.textContent = "";
   overlayGallery.innerHTML = "";
-  poi.images.forEach((src) => {
-    const img = document.createElement("img");
-    img.src = src;
-    img.alt = poi.label + " photo";
-    overlayGallery.appendChild(img);
-  });
-
   document.title = "SITE #" + poi.number;
 
   lastFocused = document.activeElement;
   overlay.hidden = false;
   overlayClose.focus();
+
+  const siteMap = await siteContentReady;
+  if (overlay.hidden) return; // closed before content finished loading
+
+  const content = siteMap[poi.number] || {};
+  overlayText.textContent = content.description || "";
+  (content.images || []).forEach((filename) => {
+    const img = document.createElement("img");
+    img.src = "assets/" + filename;
+    img.alt = poi.label + " photo";
+    overlayGallery.appendChild(img);
+  });
 }
 
 function closeOverlay() {
