@@ -96,7 +96,7 @@ body {
 .marker::after {
   content: "";
   position: absolute;
-  inset: -8px;
+  inset: -4px;
   border-radius: inherit;
   background: var(--accent);
   opacity: 0.35;
