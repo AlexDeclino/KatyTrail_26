@@ -8,20 +8,21 @@ const PLACEHOLDER_TEXTS = [
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum."
 ];
 
+// Ordered south to north (bottom to top of the map) so marker numbers run bottom-up.
 const RAW_POIS = [
-  { id: "dedos-place",        label: "Dedo's Place",                        x: 79.81, y: 16.82, images: ["assets/1.png"] },
-  { id: "harvard",             label: "Harvard",                             x: 74.72, y: 21.06, images: ["assets/2.png"] },
-  { id: "knox-street",         label: "Knox Street",                         x: 67.53, y: 26.79, images: ["assets/3.png"] },
-  { id: "davids-way",          label: "David's Way",                         x: 66.73, y: 28.00, images: ["assets/4.png"] },
-  { id: "tao-of-warren",       label: "The Tao of Warren",                   x: 65.15, y: 29.70, images: ["assets/5.png"] },
-  { id: "tao-of-warren-2",     label: "Trail Point (near The Tao of Warren)",x: 64.33, y: 30.66, images: ["assets/6_A.png", "assets/6_B.png", "assets/6_C.png"] },
-  { id: "travis-st",           label: "Trail Point (Travis St.)",            x: 61.35, y: 35.48, images: ["assets/7.png"] },
-  { id: "snyders-union",       label: "Snyder's Union",                      x: 50.00, y: 54.31, images: ["assets/8.png"] },
-  { id: "ice-house-caboose",   label: "Katy Trail Ice House Caboose",        x: 37.51, y: 65.10, images: ["assets/9.png"] },
-  { id: "thomsen-overlook",    label: "Thomsen Overlook",                    x: 31.74, y: 68.56, images: ["assets/10.png"] },
-  { id: "thomsen-overlook-2",  label: "Trail Point (near Thomsen Overlook)", x: 30.10, y: 70.09, images: ["assets/11.png"] },
+  { id: "victory-overlook",    label: "Victory Overlook",                    x: 30.35, y: 72.17, images: ["assets/13.png"] },
   { id: "thomsen-overlook-3",  label: "Trail Point (near Thomsen Overlook)", x: 31.46, y: 70.09, images: ["assets/12.png"] },
-  { id: "victory-overlook",    label: "Victory Overlook",                    x: 30.35, y: 72.17, images: ["assets/13.png"] }
+  { id: "thomsen-overlook-2",  label: "Trail Point (near Thomsen Overlook)", x: 30.10, y: 70.09, images: ["assets/11.png"] },
+  { id: "thomsen-overlook",    label: "Thomsen Overlook",                    x: 31.74, y: 68.56, images: ["assets/10.png"] },
+  { id: "ice-house-caboose",   label: "Katy Trail Ice House Caboose",        x: 37.51, y: 65.10, images: ["assets/9.png"] },
+  { id: "snyders-union",       label: "Snyder's Union",                      x: 50.00, y: 54.31, images: ["assets/8.png"] },
+  { id: "travis-st",           label: "Trail Point (Travis St.)",            x: 61.35, y: 35.48, images: ["assets/7.png"] },
+  { id: "tao-of-warren-2",     label: "Trail Point (near The Tao of Warren)",x: 64.33, y: 30.66, images: ["assets/6_A.png", "assets/6_B.png", "assets/6_C.png"] },
+  { id: "tao-of-warren",       label: "The Tao of Warren",                   x: 65.15, y: 29.70, images: ["assets/5.png"] },
+  { id: "davids-way",          label: "David's Way",                         x: 66.73, y: 28.00, images: ["assets/4.png"] },
+  { id: "knox-street",         label: "Knox Street",                         x: 67.53, y: 26.79, images: ["assets/3.png"] },
+  { id: "harvard",             label: "Harvard",                             x: 74.72, y: 21.06, images: ["assets/2.png"] },
+  { id: "dedos-place",        label: "Dedo's Place",                        x: 79.81, y: 16.82, images: ["assets/1.png"] }
 ];
 
 const POIS = RAW_POIS.map((poi, i) => ({
