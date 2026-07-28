@@ -3,6 +3,7 @@
 const POIS = [
   {
     id: "harvard",
+    number: 1,
     label: "Harvard Crossing",
     x: 72.00,
     y: 23.21,
@@ -11,6 +12,7 @@ const POIS = [
   },
   {
     id: "fitzhugh",
+    number: 2,
     label: "Fitzhugh Entrance",
     x: 58.58,
     y: 40.68,
@@ -19,6 +21,7 @@ const POIS = [
   },
   {
     id: "snyders-union",
+    number: 3,
     label: "Snyder's Union",
     x: 50.71,
     y: 51.82,
@@ -27,6 +30,7 @@ const POIS = [
   },
   {
     id: "ice-house-caboose",
+    number: 4,
     label: "Katy Trail Ice House Caboose",
     x: 38.82,
     y: 64.30,

@@ -71,10 +71,12 @@ body {
 .marker {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 22px;
-  height: 22px;
-  border: none;
-  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
   background: var(--accent);
   border: 3px solid #ffffff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
@@ -83,11 +85,19 @@ body {
   transition: transform 0.15s ease, background 0.15s ease;
 }
 
+.marker-number {
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+
 .marker::after {
   content: "";
   position: absolute;
   inset: -8px;
-  border-radius: 50%;
+  border-radius: inherit;
   background: var(--accent);
   opacity: 0.35;
   animation: pulse 2s ease-out infinite;
@@ -199,5 +209,6 @@ body {
 }
 
 @media (max-width: 480px) {
-  .marker { width: 18px; height: 18px; border-width: 2px; }
+  .marker { width: 20px; height: 20px; border-width: 2px; border-radius: 5px; }
+  .marker-number { font-size: 0.65rem; }
 }
