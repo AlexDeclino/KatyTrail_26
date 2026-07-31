@@ -152,7 +152,7 @@ async function initMap3D() {
 // (logged to the console) without breaking the rest of the map.
 // Tall enough to occlude most nearby buildings (~80 stories); raise this if
 // a particularly tall tower still pokes through.
-const FOG_HEIGHT_METERS = 300;
+const FOG_HEIGHT_METERS = 50;
 
 function withAltitude(ring, altitude) {
   return ring.map((p) => ({ lat: p.lat, lng: p.lng, altitude }));
