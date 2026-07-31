@@ -110,12 +110,16 @@ async function initMap3D() {
   const { Map3DElement } = maps3d;
   const MarkerCtor = maps3d.Marker3DInteractiveElement || maps3d.Marker3DElement;
 
-  // Centered roughly over the middle of the trail; adjust to taste.
+  // Opens on SITE #1, close to the ground. Google's "tilt" is measured from
+  // straight down (0 = bird's-eye, 90 = looking at the horizon), so "15
+  // degrees from the ground" is tilt: 75. Heading points up-trail toward
+  // SITE #2. Adjust range/altitude to taste once you can see it rendered.
+  const startSite = SITE_GEO[1];
   const map3D = new Map3DElement({
-    center: { lat: 32.8117, lng: -96.7958, altitude: 250 },
-    range: 3200,
-    tilt: 65,
-    heading: 15,
+    center: { lat: startSite.lat, lng: startSite.lng, altitude: 10 },
+    range: 150,
+    tilt: 75,
+    heading: 328,
     mode: "HYBRID"
   });
 
