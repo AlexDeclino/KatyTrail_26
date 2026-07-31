@@ -150,6 +150,14 @@ async function initMap3D() {
 // the maps3d preview library — if Google has changed its shape (property
 // names, hole support) since this was written, this will fail quietly
 // (logged to the console) without breaking the rest of the map.
+// Tall enough to occlude most nearby buildings (~80 stories); raise this if
+// a particularly tall tower still pokes through.
+const FOG_HEIGHT_METERS = 300;
+
+function withAltitude(ring, altitude) {
+  return ring.map((p) => ({ lat: p.lat, lng: p.lng, altitude }));
+}
+
 function addFogOfWar(maps3d, map3D) {
   if (typeof FOG_OUTER === "undefined" || typeof FOG_HOLE === "undefined") return;
   const PolygonCtor = maps3d.Polygon3DElement;
@@ -160,13 +168,13 @@ function addFogOfWar(maps3d, map3D) {
 
   try {
     const fog = new PolygonCtor({
-      path: FOG_OUTER,
-      innerPaths: [FOG_HOLE],
-      altitudeMode: "CLAMP_TO_GROUND",
-      fillColor: "rgba(5, 8, 20, 0.82)",
-      strokeColor: "rgba(5, 8, 20, 0.82)",
+      path: withAltitude(FOG_OUTER, FOG_HEIGHT_METERS),
+      innerPaths: [withAltitude(FOG_HOLE, FOG_HEIGHT_METERS)],
+      altitudeMode: "RELATIVE_TO_GROUND",
+      fillColor: "rgba(5, 8, 20, 0.92)",
+      strokeColor: "rgba(5, 8, 20, 0.92)",
       strokeWidth: 1,
-      extruded: false
+      extruded: true
     });
     map3D.appendChild(fog);
   } catch (err) {
