@@ -37,6 +37,19 @@ body {
   font-size: clamp(1.2rem, 3vw, 2rem);
 }
 
+.view-3d-link {
+  display: inline-block;
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--marker-border);
+  text-decoration: none;
+}
+
+.view-3d-link:hover {
+  text-decoration: underline;
+}
+
 .site-header p {
   margin: 0;
   color: #5a6b5e;
@@ -228,6 +241,8 @@ body {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
   cursor: pointer;
   z-index: 101;
+  display: inline-block;
+  text-decoration: none;
 }
 
 .return-home:hover {

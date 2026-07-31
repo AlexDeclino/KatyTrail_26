@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Katy Trail — 3D View</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="map3d.css">
+</head>
+<body class="map3d-body">
+
+<header class="site-header">
+  <h1>Katy Trail — 3D View</h1>
+  <a href="index.html" class="view-3d-link">&larr; Back to 2D map</a>
+</header>
+
+<div class="map3d-container" id="map3d-container">
+  <p class="map3d-status" id="map3d-status" hidden><span id="map3d-status-text"></span></p>
+</div>
+
+<div class="map3d-panel" id="site-panel" hidden>
+  <button type="button" class="map3d-panel-close" id="site-panel-close" aria-label="Close">&times;</button>
+  <h2 id="site-panel-title"></h2>
+  <p id="site-panel-text"></p>
+  <img id="site-panel-image" alt="" hidden>
+</div>
+
+<a href="index.html" class="return-home">Return to Home</a>
+
+<script src="assets/sites.js"></script>
+<script src="assets/sites-geo.js"></script>
+<script src="map3d.js"></script>
+</body>
+</html>
