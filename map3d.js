@@ -171,9 +171,9 @@ function addFogOfWar(maps3d, map3D) {
       path: withAltitude(FOG_OUTER, FOG_HEIGHT_METERS),
       innerPaths: [withAltitude(FOG_HOLE, FOG_HEIGHT_METERS)],
       altitudeMode: "RELATIVE_TO_GROUND",
-      fillColor: "rgba(5, 8, 20, 0.2)",
-      strokeColor: "rgba(5, 8, 20, 0.92)",
-      strokeWidth: 1,
+      fillColor: "rgba(5, 8, 20, 0.5)",
+      strokeColor: "rgba(5, 8, 20, 1)",
+      strokeWidth: 10,
       extruded: true
     });
     map3D.appendChild(fog);
