@@ -152,7 +152,7 @@ async function initMap3D() {
 // (logged to the console) without breaking the rest of the map.
 // Tall enough to occlude most nearby buildings (~80 stories); raise this if
 // a particularly tall tower still pokes through.
-const FOG_HEIGHT_METERS = 50;
+const FOG_HEIGHT_METERS = 300;
 
 function withAltitude(ring, altitude) {
   return ring.map((p) => ({ lat: p.lat, lng: p.lng, altitude }));
@@ -171,7 +171,7 @@ function addFogOfWar(maps3d, map3D) {
       path: withAltitude(FOG_OUTER, FOG_HEIGHT_METERS),
       innerPaths: [withAltitude(FOG_HOLE, FOG_HEIGHT_METERS)],
       altitudeMode: "RELATIVE_TO_GROUND",
-      fillColor: "rgba(5, 8, 20, 0.92)",
+      fillColor: "rgba(5, 8, 20, 0.2)",
       strokeColor: "rgba(5, 8, 20, 0.92)",
       strokeWidth: 1,
       extruded: true
