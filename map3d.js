@@ -171,7 +171,7 @@ function addFogOfWar(maps3d, map3D) {
       path: withAltitude(FOG_OUTER, FOG_HEIGHT_METERS),
       innerPaths: [withAltitude(FOG_HOLE, FOG_HEIGHT_METERS)],
       altitudeMode: "RELATIVE_TO_GROUND",
-      fillColor: "rgba(255, 0, 0, 0.3)",
+      fillColor: "rgba(5, 8, 20, 0.3)",
       strokeColor: "rgba(5, 8, 20, 1)",
       strokeWidth: 5,
       extruded: true
