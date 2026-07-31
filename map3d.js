@@ -12,6 +12,18 @@ const GOOGLE_MAPS_API_KEY = "AIzaSyAu6ZmocrNDAaTASB16nrcoPCBw0s_VQuA";
 // any of the properties/classes below, check:
 // https://developers.google.com/maps/documentation/javascript/3d-maps-overview
 
+// Google injects a dev-mode "using the alpha channel" banner into <body>
+// when loading v:"alpha" (required for Photorealistic 3D Tiles, which isn't
+// on the stable channel yet). CSS can't reliably override it, so watch for
+// it and remove it outright as soon as it appears.
+new MutationObserver((_records, observer) => {
+  const banner = document.querySelector('[class$="-api-load-alpha-banner"]');
+  if (banner) {
+    banner.remove();
+    observer.disconnect();
+  }
+}).observe(document.body, { childList: true, subtree: true });
+
 const statusEl = document.getElementById("map3d-status");
 const statusTextEl = document.getElementById("map3d-status-text");
 const panel = document.getElementById("site-panel");
