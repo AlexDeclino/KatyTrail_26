@@ -110,20 +110,22 @@ async function initMap3D() {
   const { Map3DElement } = maps3d;
   const MarkerCtor = maps3d.Marker3DInteractiveElement || maps3d.Marker3DElement;
 
-  // Opens on SITE #1, close to the ground. Google's "tilt" is measured from
-  // straight down (0 = bird's-eye, 90 = looking at the horizon), so "15
-  // degrees from the ground" is tilt: 75. Heading points up-trail toward
-  // SITE #2. Adjust range/altitude to taste once you can see it rendered.
+  // Opens on SITE #1 at a 45-degree oblique bird's-eye angle. mode:
+  // "SATELLITE" shows pure photorealistic imagery with no road/business/POI
+  // labels — those in the screenshot were Google's default map layer
+  // (from "HYBRID" mode), not anything we placed.
   const startSite = SITE_GEO[1];
   const map3D = new Map3DElement({
     center: { lat: startSite.lat, lng: startSite.lng, altitude: 10 },
-    range: 150,
-    tilt: 75,
-    heading: 328,
-    mode: "HYBRID"
+    range: 400,
+    tilt: 45,
+    heading: 0,
+    mode: "SATELLITE"
   });
 
   document.getElementById("map3d-container").appendChild(map3D);
+
+  addFogOfWar(maps3d, map3D);
 
   Object.keys(SITE_GEO || {}).forEach((key) => {
     const number = Number(key);
@@ -140,4 +142,34 @@ async function initMap3D() {
     marker.addEventListener("gmp-click", () => showSitePanel(number));
     map3D.appendChild(marker);
   });
+}
+
+// "Fog of war": a large dark polygon with a hole cut out along the trail
+// corridor (see assets/trail-corridor.js), so only the trail itself stays
+// lit and the rest of the city is dimmed. This uses Polygon3DElement from
+// the maps3d preview library — if Google has changed its shape (property
+// names, hole support) since this was written, this will fail quietly
+// (logged to the console) without breaking the rest of the map.
+function addFogOfWar(maps3d, map3D) {
+  if (typeof FOG_OUTER === "undefined" || typeof FOG_HOLE === "undefined") return;
+  const PolygonCtor = maps3d.Polygon3DElement;
+  if (!PolygonCtor) {
+    console.warn("Polygon3DElement isn't available in this maps3d library version; skipping fog of war.");
+    return;
+  }
+
+  try {
+    const fog = new PolygonCtor({
+      path: FOG_OUTER,
+      innerPaths: [FOG_HOLE],
+      altitudeMode: "CLAMP_TO_GROUND",
+      fillColor: "rgba(5, 8, 20, 0.82)",
+      strokeColor: "rgba(5, 8, 20, 0.82)",
+      strokeWidth: 1,
+      extruded: false
+    });
+    map3D.appendChild(fog);
+  } catch (err) {
+    console.warn("Couldn't render fog-of-war polygon:", err);
+  }
 }
